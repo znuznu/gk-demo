@@ -1,2 +1,3 @@
-# gk-demo
-Groolkit library demo app.
+# Groolkit demo
+
+A Groolkit library demo app.
