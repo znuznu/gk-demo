@@ -7,32 +7,17 @@ import * as Groolkit from '@znuznu/groolkit';
 import { Box } from '@chakra-ui/react';
 
 import AlgorithmContext from 'contexts/AlgorithmContext';
+import {
+  processFov,
+  processLine,
+  processPath,
+} from 'services/algorithm.service';
 
 const View = (props) => {
   const canvasRef = useRef(null);
 
-  let [draw, setDraw] = useState(
-    new Groolkit.Draw.DrawPath({
-      context: canvasRef.current.context,
-      grid,
-      callback: (n) => n,
-      drawOptions: {
-        widthTile: Groolkit.TILE_WIDTH,
-        heightTile: Groolkit.TILE_HEIGHT,
-      },
-    })
-  );
-
-  const twoClicksAlgorithms = [
-    'astar4',
-    'astar8',
-    'dijkstra4',
-    'dijkstra8',
-    'linelerp',
-  ];
-
-  let [clickSelection, setClickSelection] = useState([]);
-  let [grid, setGrid] = useState([
+  const [clickSelection, setClickSelection] = useState([]);
+  const [grid, setGrid] = useState([
     [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0],
     [0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1],
     [1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0],
@@ -44,6 +29,8 @@ const View = (props) => {
     [0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1],
     [0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0],
   ]);
+
+  const [draw, setDraw] = useState(undefined);
 
   const currentAlgorithm = useContext(AlgorithmContext);
 
@@ -57,32 +44,21 @@ const View = (props) => {
   }, []);
 
   useEffect(() => {
+    if (grid && canvasRef.current.getContext('2d')) {
+      setDraw(
+        new Groolkit.Draw(canvasRef.current.getContext('2d'), grid, (n) => n, {
+          widthTile: Groolkit.TILE_WIDTH,
+          heightTile: Groolkit.TILE_HEIGHT,
+        })
+      );
+    }
+  }, [grid]);
+
+  useEffect(() => {
     if (draw) {
       draw.drawGrid();
     }
   }, [draw]);
-
-  useEffect(() => {
-    if (draw) {
-      const args = {
-        context: canvasRef.current.context,
-        grid,
-        callback: (n) => n,
-        drawOptions: {
-          widthTile: Groolkit.TILE_WIDTH,
-          heightTile: Groolkit.TILE_HEIGHT,
-        },
-      };
-
-      if (currentAlgorithm.type === 'PATH') {
-        setDraw(new Groolkit.Draw.DrawPath(args));
-      } else if (currentAlgorithm.type === 'FOV') {
-        setDraw(new Groolkit.Draw.DrawFov(args));
-      } else if (currentAlgorithm.type === 'LINE') {
-        setDraw(new Groolkit.Draw.DrawLine(args));
-      }
-    }
-  }, [currentAlgorithm]);
 
   useEffect(() => {
     if (currentAlgorithm) {
@@ -90,56 +66,71 @@ const View = (props) => {
     }
   }, [clickSelection]);
 
-  const processPath = () => {
+  const handlePath = () => {
     if (clickSelection.length !== 2) {
       return;
     }
 
-    // todo change that shit
-    const paths = {
-      dijkstra4: new Groolkit.Path.Dijkstra(grid, { type: 4 }, (n) => n),
-      dijkstra8: new Groolkit.Path.Dijkstra(grid, { type: 8 }, (n) => n),
-      astar4: new Groolkit.Path.AStar(grid, { type: 4 }, (n) => n),
-      astar8: new Groolkit.Path.AStar(grid, { type: 8 }, (n) => n),
-    };
+    const result = processPath({
+      algorithmName: currentAlgorithm.name,
+      grid,
+      callback: (n) => n,
+      positions: clickSelection,
+    });
 
-    let path = paths[currentAlgorithm];
-
-    path.init();
-    let start = clickSelection[0];
-    let end = clickSelection[1];
-    let result = path.search(start, end);
-
-    draw.draw(result, 500);
+    draw.drawPath(result, 500);
   };
 
-  const processFov = () => {
-    const fovs = {
-      rsc: new Groolkit.FOV.RecursiveShadowCasting(grid, (n) => !n),
-    };
+  const handleFov = () => {
+    const fovResult = processFov({
+      algorithmName: currentAlgorithm.name,
+      grid,
+      callback: (n) => !n,
+      position: clickSelection[0],
+    });
 
-    let fovResult = fovs[currentAlgorithm].compute(clickSelection[0]);
+    draw.drawFov(fovResult);
+  };
 
-    if (fovResult.status === 'Success') {
-      console.log(fovResult);
-      draw.draw(fovResult);
+  const handleLine = () => {
+    if (clickSelection.length !== 2) {
+      return;
     }
+
+    const lineResult = processLine({
+      algorithmName: currentAlgorithm.name,
+      grid,
+      callback: (n) => n,
+      positions: clickSelection,
+    });
+
+    draw.drawLine(lineResult);
   };
 
   const handleAlgorithm = () => {
-    const algorithms = {
-      PATH: () => 'processPath',
-      FOV: () => 'processFov',
-    };
-
-    algorithms[currentAlgorithm.type]();
+    switch (currentAlgorithm.type) {
+      case 'PATH':
+        handlePath();
+        break;
+      case 'FOV':
+        handleFov();
+        break;
+      case 'LINE':
+        handleLine();
+        break;
+      default:
+        throw new Error(`No such algorithm type '${currentAlgorithm.type}'`);
+    }
   };
 
   const handleClick = (event) => {
     const [canvasX, canvasY] = getCanvasPosition(event.clientX, event.clientY);
     const [x, y] = getTilePosition(canvasY, canvasX);
 
-    if (twoClicksAlgorithms.includes(currentAlgorithm)) {
+    const isTwoClicksAlgorithm =
+      currentAlgorithm.type === 'PATH' || currentAlgorithm.type === 'LINE';
+
+    if (isTwoClicksAlgorithm) {
       if (clickSelection.length !== 2) {
         setClickSelection((clickSelection) => [...clickSelection, { x, y }]);
       } else {

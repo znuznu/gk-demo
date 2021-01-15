@@ -29,7 +29,7 @@ const Algorithms = (props) => {
     },
     {
       label: 'Line',
-      options: [{ value: 'linelerp', name: 'Linear interpolation' }],
+      options: [{ value: 'lerp', name: 'Linear interpolation' }],
     },
   ];
 
@@ -38,12 +38,7 @@ const Algorithms = (props) => {
       <Heading as="h2" size="md" display="inline" mb={10}>
         Algorithms
       </Heading>
-      <Select
-        placeholder="Select option"
-        size="md"
-        onChange={handleChange}
-        defaultValue="astar4"
-      >
+      <Select size="md" onChange={handleChange} defaultValue="astar4">
         {optgroups.map((groups) => (
           <optgroup key={groups.label} label={groups.label}>
             {groups.options.map((options) => (
