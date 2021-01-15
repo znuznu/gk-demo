@@ -8,6 +8,7 @@ import { Box } from '@chakra-ui/react';
 
 import AlgorithmContext from 'contexts/AlgorithmContext';
 import {
+  processFill,
   processFov,
   processLine,
   processPath,
@@ -81,17 +82,6 @@ const View = (props) => {
     draw.drawPath(result, 500);
   };
 
-  const handleFov = () => {
-    const fovResult = processFov({
-      algorithmName: currentAlgorithm.name,
-      grid,
-      callback: (n) => !n,
-      position: clickSelection[0],
-    });
-
-    draw.drawFov(fovResult);
-  };
-
   const handleLine = () => {
     if (clickSelection.length !== 2) {
       return;
@@ -107,6 +97,28 @@ const View = (props) => {
     draw.drawLine(lineResult);
   };
 
+  const handleFov = () => {
+    const fovResult = processFov({
+      algorithmName: currentAlgorithm.name,
+      grid,
+      callback: (n) => !n,
+      position: clickSelection[0],
+    });
+
+    draw.drawFov(fovResult);
+  };
+
+  const handleFill = () => {
+    const fillResult = processFill({
+      algorithmName: currentAlgorithm.name,
+      grid,
+      callback: (n) => n === 0,
+      position: clickSelection[0],
+    });
+
+    draw.drawFill(fillResult);
+  };
+
   const handleAlgorithm = () => {
     switch (currentAlgorithm.type) {
       case 'PATH':
@@ -117,6 +129,9 @@ const View = (props) => {
         break;
       case 'LINE':
         handleLine();
+        break;
+      case 'FILL':
+        handleFill();
         break;
       default:
         throw new Error(`No such algorithm type '${currentAlgorithm.type}'`);

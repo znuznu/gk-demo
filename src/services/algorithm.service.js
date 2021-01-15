@@ -9,8 +9,7 @@ export const getAlgorithmObject = (algorithmName) => {
   const paths = ['astar4', 'astar8', 'dijsktra4', 'dijsktra8'];
   const fovs = ['rsc'];
   const lines = ['lerp'];
-  // fill
-  // const lines = ['linelerp'];
+  const fill = ['flood'];
 
   if (paths.includes(algorithmName)) {
     return { name: algorithmName, type: 'PATH' };
@@ -18,11 +17,14 @@ export const getAlgorithmObject = (algorithmName) => {
     return { name: algorithmName, type: 'FOV' };
   } else if (lines.includes(algorithmName)) {
     return { name: algorithmName, type: 'LINE' };
+  } else if (fill.includes(algorithmName)) {
+    return { name: algorithmName, type: 'FILL' };
   }
 };
 
+// TODO: replace the object literals by something that doesn't create instance
+
 export const processPath = ({ algorithmName, grid, callback, positions }) => {
-  //todo: change this abomination!
   const paths = {
     dijkstra4: new Groolkit.Path.Dijkstra(grid, { type: 4 }, callback),
     dijkstra8: new Groolkit.Path.Dijkstra(grid, { type: 8 }, callback),
@@ -53,4 +55,12 @@ export const processLine = ({ algorithmName, grid, callback, positions }) => {
   };
 
   return lines[algorithmName].process(positions[0], positions[1]);
+};
+
+export const processFill = ({ algorithmName, grid, callback, position }) => {
+  const fill = {
+    flood: new Groolkit.Fill.FloodFill(grid, callback),
+  };
+
+  return fill[algorithmName].process(position);
 };

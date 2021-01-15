@@ -9,7 +9,7 @@ import Algorithms from './Algorithms/Algorithms';
 import AlgorithmContext from 'contexts/AlgorithmContext';
 
 const Content = () => {
-  // todo extract to constants
+  // todo extract to a constant
   const [currentAlgorithm, setCurrentAlgorithm] = useState({
     name: 'astar4',
     type: 'PATH',

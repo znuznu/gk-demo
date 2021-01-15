@@ -25,7 +25,7 @@ const Algorithms = (props) => {
     },
     {
       label: 'Filling',
-      options: [{ value: 'floodfill', name: 'Flood filling' }],
+      options: [{ value: 'flood', name: 'Flood filling' }],
     },
     {
       label: 'Line',
