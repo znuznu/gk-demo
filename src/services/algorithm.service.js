@@ -22,17 +22,25 @@ export const getAlgorithmObject = (algorithmName) => {
   }
 };
 
-// TODO: replace the object literals by something that doesn't create instance
+// FIXME: replace the switches below by something sexy
 
 export const processPath = ({ algorithmName, grid, callback, positions }) => {
-  const paths = {
-    dijkstra4: new Groolkit.Path.Dijkstra(grid, { type: 4 }, callback),
-    dijkstra8: new Groolkit.Path.Dijkstra(grid, { type: 8 }, callback),
-    astar4: new Groolkit.Path.AStar(grid, { type: 4 }, callback),
-    astar8: new Groolkit.Path.AStar(grid, { type: 8 }, callback),
-  };
+  let path = undefined;
 
-  const path = paths[algorithmName];
+  switch (algorithmName) {
+    case 'astar4':
+      path = new Groolkit.Path.AStar(grid, { type: 4 }, callback);
+      break;
+    case 'astar8':
+      path = new Groolkit.Path.AStar(grid, { type: 8 }, callback);
+      break;
+    case 'dijkstra4':
+      path = new Groolkit.Path.Dijkstra(grid, { type: 4 }, callback);
+      break;
+    case 'dijkstra8':
+      path = new Groolkit.Path.Dijkstra(grid, { type: 8 }, callback);
+      break;
+  }
 
   path.init();
   const start = positions[0];
@@ -42,25 +50,36 @@ export const processPath = ({ algorithmName, grid, callback, positions }) => {
 };
 
 export const processFov = ({ algorithmName, grid, callback, position }) => {
-  const fovs = {
-    rsc: new Groolkit.FOV.RecursiveShadowCasting(grid, callback),
-  };
+  let fov = undefined;
 
-  return fovs[algorithmName].compute(position);
+  switch (algorithmName) {
+    case 'rsc':
+      fov = new Groolkit.FOV.RecursiveShadowCasting(grid, callback);
+      break;
+  }
+
+  return fov.compute(position);
 };
 
 export const processLine = ({ algorithmName, grid, callback, positions }) => {
-  const lines = {
-    lerp: new Groolkit.Line.LineLerp(grid, callback),
-  };
+  let line = undefined;
 
-  return lines[algorithmName].process(positions[0], positions[1]);
+  switch (algorithmName) {
+    case 'lerp':
+      line = new Groolkit.Line.LineLerp(grid, callback);
+      break;
+  }
+
+  return line.process(positions[0], positions[1]);
 };
 
 export const processFill = ({ algorithmName, grid, callback, position }) => {
-  const fill = {
-    flood: new Groolkit.Fill.FloodFill(grid, callback),
-  };
+  let fill = undefined;
 
-  return fill[algorithmName].process(position);
+  switch (algorithmName) {
+    case 'flood':
+      fill = new Groolkit.Fill.FloodFill(grid, callback);
+      break;
+  }
+  return fill.process(position);
 };
