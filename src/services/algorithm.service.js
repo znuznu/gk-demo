@@ -6,7 +6,7 @@ import * as Groolkit from '@znuznu/groolkit';
  * @param {string} algorithmName
  */
 export const getAlgorithmObject = (algorithmName) => {
-  const paths = ['astar4', 'astar8', 'dijsktra4', 'dijsktra8'];
+  const paths = ['astar4', 'astar8', 'dijkstra4', 'dijkstra8'];
   const fovs = ['rsc'];
   const lines = ['lerp'];
   const fill = ['flood'];

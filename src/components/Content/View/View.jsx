@@ -1,7 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 
-import PropTypes from 'prop-types';
-
 import * as Groolkit from '@znuznu/groolkit';
 
 import { Box } from '@chakra-ui/react';
@@ -14,7 +12,7 @@ import {
   processPath,
 } from 'services/algorithm.service';
 
-const View = (props) => {
+const View = () => {
   const canvasRef = useRef(null);
 
   const [clickSelection, setClickSelection] = useState([]);
@@ -35,12 +33,9 @@ const View = (props) => {
 
   const currentAlgorithm = useContext(AlgorithmContext);
 
-  const { height, width, bgColor } = props;
-
   useEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
-    context.fillStyle = bgColor;
     context.fillRect(0, 0, context.canvas.width, context.canvas.height);
   }, []);
 
@@ -62,10 +57,27 @@ const View = (props) => {
   }, [draw]);
 
   useEffect(() => {
-    if (currentAlgorithm) {
-      handleAlgorithm();
-    }
-  }, [clickSelection]);
+    const handleAlgorithm = () => {
+      switch (currentAlgorithm.type) {
+        case 'PATH':
+          handlePath();
+          break;
+        case 'FOV':
+          handleFov();
+          break;
+        case 'LINE':
+          handleLine();
+          break;
+        case 'FILL':
+          handleFill();
+          break;
+        default:
+          throw new Error(`No such algorithm type '${currentAlgorithm.type}'`);
+      }
+    };
+
+    handleAlgorithm();
+  });
 
   const handlePath = () => {
     if (clickSelection.length !== 2) {
@@ -98,6 +110,10 @@ const View = (props) => {
   };
 
   const handleFov = () => {
+    if (!clickSelection.length) {
+      return;
+    }
+
     const fovResult = processFov({
       algorithmName: currentAlgorithm.name,
       grid,
@@ -109,6 +125,10 @@ const View = (props) => {
   };
 
   const handleFill = () => {
+    if (!clickSelection.length) {
+      return;
+    }
+
     const fillResult = processFill({
       algorithmName: currentAlgorithm.name,
       grid,
@@ -117,25 +137,6 @@ const View = (props) => {
     });
 
     draw.drawFill(fillResult);
-  };
-
-  const handleAlgorithm = () => {
-    switch (currentAlgorithm.type) {
-      case 'PATH':
-        handlePath();
-        break;
-      case 'FOV':
-        handleFov();
-        break;
-      case 'LINE':
-        handleLine();
-        break;
-      case 'FILL':
-        handleFill();
-        break;
-      default:
-        throw new Error(`No such algorithm type '${currentAlgorithm.type}'`);
-    }
   };
 
   const handleClick = (event) => {
@@ -176,22 +177,12 @@ const View = (props) => {
       {(value) => (
         <>
           <Box _hover={{ cursor: 'pointer' }}>
-            <canvas ref={canvasRef} color={bgColor} onClick={handleClick} />
+            <canvas ref={canvasRef} onClick={handleClick} />
           </Box>
         </>
       )}
     </AlgorithmContext.Consumer>
   );
-};
-
-View.propTypes = {
-  height: PropTypes.number,
-  width: PropTypes.number,
-  bgColor: PropTypes.string,
-};
-
-View.defaultProps = {
-  bgColor: '#000000',
 };
 
 export default View;
