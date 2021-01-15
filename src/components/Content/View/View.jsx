@@ -58,22 +58,14 @@ const View = () => {
 
   useEffect(() => {
     const handleAlgorithm = () => {
-      switch (currentAlgorithm.type) {
-        case 'PATH':
-          handlePath();
-          break;
-        case 'FOV':
-          handleFov();
-          break;
-        case 'LINE':
-          handleLine();
-          break;
-        case 'FILL':
-          handleFill();
-          break;
-        default:
-          throw new Error(`No such algorithm type '${currentAlgorithm.type}'`);
-      }
+      const handle = {
+        PATH: handlePath,
+        FOV: handleFov,
+        LINE: handleLine,
+        FILL: handleFill,
+      };
+
+      handle[currentAlgorithm.type]();
     };
 
     handleAlgorithm();
