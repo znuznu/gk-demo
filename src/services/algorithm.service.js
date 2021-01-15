@@ -40,6 +40,8 @@ export const processPath = ({ algorithmName, grid, callback, positions }) => {
     case 'dijkstra8':
       path = new Groolkit.Path.Dijkstra(grid, { type: 8 }, callback);
       break;
+    default:
+      throw new Error(`No such algorithm: '${algorithmName}'`);
   }
 
   path.init();
@@ -56,6 +58,8 @@ export const processFov = ({ algorithmName, grid, callback, position }) => {
     case 'rsc':
       fov = new Groolkit.FOV.RecursiveShadowCasting(grid, callback);
       break;
+    default:
+      throw new Error(`No such algorithm: '${algorithmName}'`);
   }
 
   return fov.compute(position);
@@ -68,6 +72,8 @@ export const processLine = ({ algorithmName, grid, callback, positions }) => {
     case 'lerp':
       line = new Groolkit.Line.LineLerp(grid, callback);
       break;
+    default:
+      throw new Error(`No such algorithm: '${algorithmName}'`);
   }
 
   return line.process(positions[0], positions[1]);
@@ -80,6 +86,8 @@ export const processFill = ({ algorithmName, grid, callback, position }) => {
     case 'flood':
       fill = new Groolkit.Fill.FloodFill(grid, callback);
       break;
+    default:
+      throw new Error(`No such algorithm: '${algorithmName}'`);
   }
   return fill.process(position);
 };
