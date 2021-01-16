@@ -2,6 +2,8 @@
   "name": "gk-demo",
   "version": "0.1.0",
   "private": true,
+  "author": "znu (https://github.com/znuznu)",
+  "license": "MIT",
   "dependencies": {
     "@chakra-ui/icons": "^1.0.3",
     "@chakra-ui/react": "^1.1.4",
