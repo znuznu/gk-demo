@@ -20,7 +20,7 @@ const Content = () => {
   };
 
   return (
-    <Box mx="auto" borderRadius="lg" borderWidth="1px" mt={10} p={5}>
+    <Box mx="auto" borderRadius="lg" borderWidth="1px" mt={5} p={5}>
       <Flex mx="auto">
         <Box mr={5}>
           <Algorithms changeAlgorithm={changeAlgorithm} />

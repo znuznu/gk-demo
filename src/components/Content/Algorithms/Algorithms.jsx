@@ -35,10 +35,10 @@ const Algorithms = (props) => {
 
   return (
     <Box maxW="sm">
-      <Heading as="h2" size="md" display="inline" mb={10}>
+      <Heading as="h2" size="md" display="inline">
         Algorithms
       </Heading>
-      <Select size="md" onChange={handleChange} defaultValue="astar4">
+      <Select size="md" onChange={handleChange} defaultValue="astar4" mt={1}>
         {optgroups.map((groups) => (
           <optgroup key={groups.label} label={groups.label}>
             {groups.options.map((options) => (

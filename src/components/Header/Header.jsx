@@ -1,13 +1,15 @@
 import React from 'react';
 
-import { Box } from '@chakra-ui/react';
+import { Box, Flex } from '@chakra-ui/react';
 
 import Title from './Title/Title';
 
 const Header = () => {
   return (
-    <Box mt={10} mx="auto">
-      <Title title="Groolkit library demo" />
+    <Box mx="auto" borderTop="8px solid" borderColor="red.700">
+      <Flex mt={3} justifyContent="center">
+        <Title title="Groolkit library demo" version="0.8.0" />
+      </Flex>
     </Box>
   );
 };

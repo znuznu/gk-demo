@@ -89,5 +89,6 @@ export const processFill = ({ algorithmName, grid, callback, position }) => {
     default:
       throw new Error(`No such algorithm: '${algorithmName}'`);
   }
+
   return fill.process(position);
 };

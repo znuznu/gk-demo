@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-
 import * as Groolkit from '@znuznu/groolkit';
+
+import React, { useContext, useEffect, useRef, useState } from 'react';
 
 import { Box } from '@chakra-ui/react';
 
@@ -11,27 +11,16 @@ import {
   processLine,
   processPath,
 } from 'services/algorithm.service';
+import { COLORS, generate } from 'services/grid.service';
 
 const View = () => {
   const canvasRef = useRef(null);
-
-  const [clickSelection, setClickSelection] = useState([]);
-  const [grid, setGrid] = useState([
-    [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0],
-    [0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1],
-    [1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0],
-    [0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1],
-    [1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1],
-    [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1],
-    [0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1],
-    [1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1],
-    [0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0],
-  ]);
-
-  const [draw, setDraw] = useState(undefined);
-
   const currentAlgorithm = useContext(AlgorithmContext);
+  const [clickSelection, setClickSelection] = useState([]);
+  const [grid, setGrid] = useState(generate(30, 30));
+  const [draw, setDraw] = useState(undefined);
+  const [currentPointerCell, setCurrentPointerCell] = useState(undefined);
+  const [tileSize, setTileSize] = useState(16);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -43,12 +32,12 @@ const View = () => {
     if (grid && canvasRef.current.getContext('2d')) {
       setDraw(
         new Groolkit.Draw(canvasRef.current.getContext('2d'), grid, (n) => n, {
-          widthTile: Groolkit.TILE_WIDTH,
-          heightTile: Groolkit.TILE_HEIGHT,
+          width: tileSize,
+          height: tileSize,
         })
       );
     }
-  }, [grid]);
+  }, [grid, tileSize]);
 
   useEffect(() => {
     if (draw) {
@@ -68,8 +57,24 @@ const View = () => {
       handle[currentAlgorithm.type]();
     };
 
+    // Avoid drawing a trace, we're trading some perf here but it's okay
+    handleDefault();
+
     handleAlgorithm();
   });
+
+  useEffect(() => {
+    if (currentPointerCell) {
+      const x = currentPointerCell.x;
+      const y = currentPointerCell.y;
+
+      const canvas = canvasRef.current;
+      const context = canvas.getContext('2d');
+      context.fillStyle = COLORS.hover;
+      context.globalAlpha = 0.4;
+      context.fillRect(y * tileSize, x * tileSize, tileSize, tileSize);
+    }
+  }, [currentPointerCell, tileSize]);
 
   const handlePath = () => {
     if (clickSelection.length !== 2) {
@@ -131,9 +136,15 @@ const View = () => {
     draw.drawFill(fillResult);
   };
 
+  const handleDefault = () => {
+    if (draw) {
+      draw.drawGrid();
+    }
+  };
+
   const handleClick = (event) => {
     const [canvasX, canvasY] = getCanvasPosition(event.clientX, event.clientY);
-    const [x, y] = getTilePosition(canvasY, canvasX);
+    const [x, y] = getCellPosition(canvasY, canvasX);
 
     const isTwoClicksAlgorithm =
       currentAlgorithm.type === 'PATH' || currentAlgorithm.type === 'LINE';
@@ -149,6 +160,21 @@ const View = () => {
     }
   };
 
+  const handleMov = (event) => {
+    const [canvasX, canvasY] = getCanvasPosition(event.clientX, event.clientY);
+    const [x, y] = getCellPosition(canvasY, canvasX);
+
+    const isNotSet = !currentPointerCell;
+
+    if (isNotSet || currentPointerCell.x !== x || currentPointerCell.y !== y) {
+      setCurrentPointerCell({ x, y });
+    }
+  };
+
+  const handleOut = () => {
+    setCurrentPointerCell(undefined);
+  };
+
   const getCanvasPosition = (clientX, clientY) => {
     const rect = canvasRef.current.getBoundingClientRect();
     const canvasX = clientX - rect.left;
@@ -157,9 +183,9 @@ const View = () => {
     return [canvasX, canvasY];
   };
 
-  const getTilePosition = (canvasX, canvasY) => {
-    let x = ~~(canvasX / Groolkit.TILE_HEIGHT);
-    let y = ~~(canvasY / Groolkit.TILE_WIDTH);
+  const getCellPosition = (canvasX, canvasY) => {
+    let x = ~~(canvasX / tileSize);
+    let y = ~~(canvasY / tileSize);
 
     return [x, y];
   };
@@ -169,7 +195,12 @@ const View = () => {
       {(value) => (
         <>
           <Box _hover={{ cursor: 'pointer' }}>
-            <canvas ref={canvasRef} onClick={handleClick} />
+            <canvas
+              ref={canvasRef}
+              onClick={handleClick}
+              onPointerMove={handleMov}
+              onPointerOut={handleOut}
+            />
           </Box>
         </>
       )}
