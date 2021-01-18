@@ -1,13 +1,9 @@
 import PropTypes from 'prop-types';
 import React, { useRef, useState } from 'react';
 import { useFrame } from 'react-three-fiber';
+import { COLORS } from '../../../services/grid.service';
 
-const colors = {
-  passage: 'white',
-  block: 'grey',
-};
-
-const TileMesh = (props) => {
+const CellMesh = (props) => {
   const { position, type, coordinates } = props;
 
   const mesh = useRef();
@@ -28,16 +24,16 @@ const TileMesh = (props) => {
       onPointerOut={() => setHover(false)}
       onClick={() => console.log(coordinates)}
     >
-      <boxBufferGeometry args={[1, type === 'block' ? 1 : 0.25, 1]} />
-      <meshStandardMaterial color={hovered ? 'firebrick' : colors[type]} />
+      <boxBufferGeometry args={[1, type === 'BLOCK' ? 1 : 0.25, 1]} />
+      <meshStandardMaterial color={hovered ? COLORS.HOVER : COLORS[type]} />
     </mesh>
   );
 };
 
-TileMesh.propTypes = {
+CellMesh.propTypes = {
   position: PropTypes.array.isRequired,
   type: PropTypes.string.isRequired,
   coordinates: PropTypes.object.isRequired,
 };
 
-export default TileMesh;
+export default CellMesh;

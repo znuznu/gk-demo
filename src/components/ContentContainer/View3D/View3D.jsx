@@ -1,13 +1,26 @@
 import { Canvas, extend, useFrame, useThree } from 'react-three-fiber';
 
 import React, { useEffect, useRef, useState } from 'react';
-import TileMesh from './TileMesh';
+import CellMesh from './CellMesh';
 import { generate } from 'services/grid.service';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 extend({ OrbitControls });
 
 const View3D = () => {
   const [grid, setGrid] = useState(generate(30, 30));
+
+  useEffect(() => {
+    const t = () => {
+      console.log('unmount');
+    };
+    console.log('mount');
+
+    return t;
+  }, []);
+
+  useEffect(() => {
+    console.log('update');
+  });
 
   const CameraControls = () => {
     const {
@@ -40,12 +53,12 @@ const View3D = () => {
     <Canvas>
       <CameraControls />
       <ambientLight />
-      <pointLight position={[10, 10, 10]} />
+      <pointLight position={[grid.length / 2, 15, grid[0].length / 2]} />
       {grid.map((row, rIndex) =>
         row.map((col, cIndex) => (
-          <TileMesh
+          <CellMesh
             position={[rIndex, col ? 0.63 : 0.25, cIndex]}
-            type={col ? 'block' : 'passage'}
+            type={col ? 'BLOCK' : 'PASSAGE'}
             key={`${rIndex}-${cIndex}`}
             coordinates={{ x: rIndex, y: cIndex }}
           />
