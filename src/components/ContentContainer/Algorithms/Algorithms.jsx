@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Box, Heading, Select } from '@chakra-ui/react';
+import { Box, Select, Text } from '@chakra-ui/react';
 
 const Algorithms = (props) => {
   const { changeAlgorithm } = props;
@@ -35,9 +35,7 @@ const Algorithms = (props) => {
 
   return (
     <Box maxW="sm">
-      <Heading as="h2" size="md" display="inline">
-        Algorithms
-      </Heading>
+      <Text fontWeight="bold">Algorithm</Text>
       <Select size="md" onChange={handleChange} defaultValue="astar4" mt={1}>
         {optgroups.map((groups) => (
           <optgroup key={groups.label} label={groups.label}>
