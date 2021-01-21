@@ -22,6 +22,7 @@ import { getAlgorithmObject } from 'services/algorithm.service';
 import View2D from './View2D/View2D';
 import Algorithms from './Algorithms/Algorithms';
 import { generate } from 'services/grid.service';
+import Result from './Result/Result';
 
 const ContentContainer = () => {
   const [grid, setGrid] = useState(generate(30, 30));
@@ -128,6 +129,7 @@ const ContentContainer = () => {
       <Flex mx="auto">
         <Box mr={5}>
           <Algorithms changeAlgorithm={changeAlgorithm} />
+          <Result result={algorithmResult.result} />
         </Box>
         <Tabs variant="soft-rounded" colorScheme="red">
           <TabList>
