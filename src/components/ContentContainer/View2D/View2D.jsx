@@ -8,7 +8,7 @@ import { Box } from '@chakra-ui/react';
 import { COLORS } from 'services/grid.service';
 
 const View2D = (props) => {
-  const { grid, manageClickSelection, algorithmResult } = props;
+  const { grid, manageClickSelection, algorithmResult, generation } = props;
 
   const canvasRef = useRef(null);
 
@@ -34,10 +34,16 @@ const View2D = (props) => {
   }, [grid, tileSize]);
 
   useEffect(() => {
-    if (draw) {
+    if (draw && generation.type !== 'DUNGEON') {
       draw.drawGrid();
     }
   }, [draw]);
+
+  useEffect(() => {
+    if (draw) {
+      drawGrid();
+    }
+  }, [generation]);
 
   useEffect(() => {
     const drawPointer = () => {
@@ -53,7 +59,7 @@ const View2D = (props) => {
     };
 
     if (hoveredCell) {
-      draw.drawGrid();
+      drawGrid();
       if (algorithmResult.result) {
         drawResult();
       }
@@ -86,6 +92,27 @@ const View2D = (props) => {
         break;
       default:
         throw new Error(`No such algorithm type: '${type}'`);
+    }
+  };
+
+  const drawGrid = () => {
+    switch (generation.type) {
+      case 'DUNGEON':
+        drawDungeon(generation.name);
+        break;
+      case 'DEFAULT':
+        draw.drawGrid(grid);
+        break;
+    }
+  };
+
+  const drawDungeon = (name) => {
+    if (generation.output) {
+      switch (name) {
+        case 'rogue':
+          draw.drawRogue(generation.output);
+          break;
+      }
     }
   };
 
@@ -145,6 +172,7 @@ View2D.propTypes = {
   grid: PropTypes.array.isRequired,
   manageClickSelection: PropTypes.func.isRequired,
   algorithmResult: PropTypes.object.isRequired,
+  generation: PropTypes.object.isRequired,
 };
 
 export default View2D;

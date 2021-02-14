@@ -25,7 +25,7 @@ export const getAlgorithmObject = (algorithmName) => {
 // FIXME: replace the switches below by something sexy
 
 export const processPath = ({ algorithmName, grid, callback, positions }) => {
-  let path = undefined;
+  let path = null;
 
   switch (algorithmName) {
     case 'astar4':
@@ -52,7 +52,7 @@ export const processPath = ({ algorithmName, grid, callback, positions }) => {
 };
 
 export const processFov = ({ algorithmName, grid, callback, position }) => {
-  let fov = undefined;
+  let fov = null;
 
   switch (algorithmName) {
     case 'rsc':
@@ -66,7 +66,7 @@ export const processFov = ({ algorithmName, grid, callback, position }) => {
 };
 
 export const processLine = ({ algorithmName, grid, callback, positions }) => {
-  let line = undefined;
+  let line = null;
 
   switch (algorithmName) {
     case 'lerp':
@@ -80,7 +80,7 @@ export const processLine = ({ algorithmName, grid, callback, positions }) => {
 };
 
 export const processFill = ({ algorithmName, grid, callback, position }) => {
-  let fill = undefined;
+  let fill = null;
 
   switch (algorithmName) {
     case 'flood':

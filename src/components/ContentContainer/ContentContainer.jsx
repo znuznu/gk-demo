@@ -18,19 +18,26 @@ import {
 } from 'services/algorithm.service';
 
 import { getAlgorithmObject } from 'services/algorithm.service';
+import { generateGrid, getGenerationObject } from 'services/generation.service';
 
 import View2D from './View2D/View2D';
 import Algorithms from './Algorithms/Algorithms';
-import { generate } from 'services/grid.service';
+import { generateDefault } from 'services/generation.service';
 import Result from './Result/Result';
+import MapGeneration from './MapGeneration/MapGeneration';
 
 const ContentContainer = () => {
-  const [grid, setGrid] = useState(generate(30, 30));
+  const [generation, setGeneration] = useState({
+    name: 'random',
+    type: 'DEFAULT',
+    output: null,
+  });
+  const [grid, setGrid] = useState(generateDefault(30, 30));
   const [clickSelection, setClickSelection] = useState([]);
   const [algorithmResult, setAlgorithmResult] = useState({
     type: 'PATH',
     name: 'astar4',
-    result: undefined,
+    result: null,
   });
 
   useEffect(() => {
@@ -106,7 +113,27 @@ const ContentContainer = () => {
 
   const changeAlgorithm = (algorithm) => {
     const algorithmType = getAlgorithmObject(algorithm);
-    setAlgorithmResult({ ...algorithmType, result: undefined });
+    setAlgorithmResult({ ...algorithmType, result: null });
+  };
+
+  const changeGeneration = (generation) => {
+    setGeneration(getGenerationObject(generation));
+  };
+
+  const generate = () => {
+    // FIXME: remove when GK will be the provider
+    if (generation.type === 'DEFAULT') {
+      setGrid(generateDefault(30, 30));
+      return;
+    }
+
+    try {
+      const output = generateGrid(generation);
+      setGrid(output.grid);
+      setGeneration({ ...generation, output });
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   const manageClickSelection = (x, y) => {
@@ -126,11 +153,19 @@ const ContentContainer = () => {
 
   return (
     <Box mx="auto" borderRadius="lg" borderWidth="1px" mt={5} p={5}>
-      <Flex mx="auto">
-        <Box mr={5}>
-          <Algorithms changeAlgorithm={changeAlgorithm} />
-          <Result result={algorithmResult.result} />
-        </Box>
+      <Flex flexDir="column" mx="auto">
+        <Flex>
+          <Box mr={5}>
+            <MapGeneration
+              changeGeneration={changeGeneration}
+              generateGrid={generate}
+            />
+          </Box>
+          <Box mr={5}>
+            <Algorithms changeAlgorithm={changeAlgorithm} />
+            <Result result={algorithmResult.result} />
+          </Box>
+        </Flex>
         <Tabs variant="soft-rounded" colorScheme="red">
           <TabList>
             <Tab>2D</Tab>
@@ -142,6 +177,7 @@ const ContentContainer = () => {
                 grid={grid}
                 manageClickSelection={manageClickSelection}
                 algorithmResult={algorithmResult}
+                generation={generation}
               />
             </TabPanel>
           </TabPanels>

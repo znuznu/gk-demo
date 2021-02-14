@@ -13,7 +13,6 @@
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^10.4.9",
     "@testing-library/user-event": "^12.6.0",
-    "@znuznu/groolkit": "^0.9.1",
     "focus-visible": "^5.2.0",
     "framer-motion": "^3.2.1",
     "react": "^17.0.1",
